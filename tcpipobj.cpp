@@ -10,10 +10,7 @@ TcpipObj::TcpipObj(QObject *parent) : QObject(parent)
 }
 TcpipObj::~TcpipObj()
 {
-    if(!m_strIniFileName.isEmpty())
-    {
-        QFile::remove(m_strIniFileName);
-    }
+     removeFile();
 }
 void TcpipObj::init()
 {
@@ -347,9 +344,13 @@ void TcpipObj::deleteObj(SocketObj index)
         }
     }
     emit createSuccess(index,false);
+    removeFile();
+    init();
+}
+void TcpipObj::removeFile()
+{
     if(!m_strIniFileName.isEmpty())
     {
         QFile::remove(m_strIniFileName);
     }
-    init();
 }

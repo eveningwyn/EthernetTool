@@ -10,7 +10,7 @@
 #include <QMetaType>
 #include <QMessageBox>
 
-#define PRO_VERSION "V1.01"
+#define PRO_VERSION "V1.02"
 #define BUILT_DATE "2017-08-27"
 void MainWindow::on_actionAbout_triggered()
 {
@@ -30,8 +30,8 @@ MainWindow::MainWindow(QWidget *parent) :
     qRegisterMetaType<SocketObj>("SocketObj");
     qRegisterMetaType<ShowMsg>("ShowMsg");
 
-//    ui->lineEdit_serverIP->setText("127.0.0.14");
-//    ui->lineEdit_serverPort->setText("8080");
+    ui->lineEdit_serverIP->setText("127.0.0.14");
+    ui->lineEdit_serverPort->setText("8080");
 
     m_pTcpip = new TcpipObj;
     m_pThread = new QThread;
@@ -64,6 +64,7 @@ MainWindow::MainWindow(QWidget *parent) :
 
 MainWindow::~MainWindow()
 {
+    m_pTcpip->removeFile();
     delete ui;
 }
 

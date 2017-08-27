@@ -58,6 +58,7 @@ public slots:
     void manualSendMsg(SocketObj index,const QString &msg);
     void deleteObj(SocketObj index);
     void setRegExpPattern(const QString &split);
+    void removeFile();
 
     void server_ReadData(const QString &ip, const int &port, const QString &readMsg);
 
