@@ -23,6 +23,7 @@ void TcpipObj::init()
     m_socketObj = TCPIP_NULL;
     m_clientIp = "";
     m_clientPort = 0;
+//    m_sPattern = QString("(.*)%1(.*)%2(.*)").arg(",").arg(",");
 }
 void TcpipObj::setCommFileName(const QString &fileName)
 {
@@ -39,6 +40,13 @@ void TcpipObj::setIniFileName(const QString &fileName)
         QFile::remove(m_strIniFileName);
     }
     m_strIniFileName = fileName;
+}
+void TcpipObj::setRegExpPattern(const QString &split)
+{
+    if(!split.isEmpty())
+    {
+        m_sPattern = QString("(.*)%1(.*)%2(.*)").arg(split).arg(split);
+    }
 }
 void TcpipObj::createObj(const QString &ip, int port,
                          QString &prefix, QString &suffix,
@@ -182,7 +190,7 @@ void TcpipObj::checkMsg(QString &msg, int &sleep_time)
     {
         QTextStream txtInput(&file);
         QString strLine;
-        QRegExp regMsg("(.*),(.*),(.*)");
+        QRegExp regMsg(m_sPattern);
         while(!txtInput.atEnd())
         {
             strLine = txtInput.readLine();
@@ -219,7 +227,7 @@ void TcpipObj::check_timerMsg(QString &sendMsg)
     {
         QTextStream txtInput(&file);
         QString strLine;
-        QRegExp regMsg("(.*),(.*),(.*)");
+        QRegExp regMsg(m_sPattern);
         while(!txtInput.atEnd())
         {
             strLine = txtInput.readLine();

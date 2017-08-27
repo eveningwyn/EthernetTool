@@ -35,6 +35,7 @@ private:
     SocketObj m_socketObj;
     QString m_clientIp;
     int m_clientPort;
+    QString m_sPattern;
 
     void checkMsg(QString &msg, int &sleep_time);
     void check_timerMsg(QString &sendMsg);
@@ -56,6 +57,7 @@ public slots:
     void setServerSendIpPort(const QString &ip, const QString &port);
     void manualSendMsg(SocketObj index,const QString &msg);
     void deleteObj(SocketObj index);
+    void setRegExpPattern(const QString &split);
 
     void server_ReadData(const QString &ip, const int &port, const QString &readMsg);
 

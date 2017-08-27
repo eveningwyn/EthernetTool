@@ -10,12 +10,13 @@
 #include <QMetaType>
 #include <QMessageBox>
 
-#define PRO_VERSION "V1.00"
-#define BUILT_DATE "2017-08-25"
+#define PRO_VERSION "V1.01"
+#define BUILT_DATE "2017-08-27"
 void MainWindow::on_actionAbout_triggered()
 {
     QMessageBox::about(this,NULL,QString(tr("\nVersion: %1\n"
-                                                    "\nBuilt on %2\n"))
+                                            "\nBuilt on %2\n"
+                                            "\n\t---evening.wen\n"))
                                .arg(PRO_VERSION).arg(BUILT_DATE));
 }
 
@@ -29,8 +30,7 @@ MainWindow::MainWindow(QWidget *parent) :
     qRegisterMetaType<SocketObj>("SocketObj");
     qRegisterMetaType<ShowMsg>("ShowMsg");
 
-    init();
-//    ui->lineEdit_serverIP->setText("192.168.3.8");
+//    ui->lineEdit_serverIP->setText("127.0.0.14");
 //    ui->lineEdit_serverPort->setText("8080");
 
     m_pTcpip = new TcpipObj;
@@ -55,7 +55,9 @@ MainWindow::MainWindow(QWidget *parent) :
     connect(this,&MainWindow::setServerSendIpPort,m_pTcpip,&TcpipObj::setServerSendIpPort);
     connect(this,&MainWindow::manualSendMsg,m_pTcpip,&TcpipObj::manualSendMsg);
     connect(this,&MainWindow::deleteObj,m_pTcpip,&TcpipObj::deleteObj);
+    connect(ui->comboBox_split,&QComboBox::currentTextChanged,m_pTcpip,&TcpipObj::setRegExpPattern);
 
+    this->init();
     m_pTcpip->moveToThread(m_pThread);
     m_pThread->start();
 }
@@ -76,6 +78,8 @@ void MainWindow::init()
     ui->lineEdit_serverIP_send->setValidator(new QRegExpValidator(regExpIP,this));
     ui->lineEdit_serverPort_send->setValidator(new QRegExpValidator(regExpNetPort,this));
     m_strLogFileName = "";
+    ui->mainToolBar->hide();
+    ui->comboBox_split->setCurrentIndex(1);
     ui->label_clientPort->hide();
     ui->checkBox_clientPort->hide();
     ui->lineEdit_clientPort->hide();
