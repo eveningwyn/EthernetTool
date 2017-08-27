@@ -10,7 +10,7 @@
 #include <QMetaType>
 #include <QMessageBox>
 
-#define PRO_VERSION "V1.02"
+#define PRO_VERSION "V1.03"
 #define BUILT_DATE "2017-08-27"
 void MainWindow::on_actionAbout_triggered()
 {
@@ -30,8 +30,8 @@ MainWindow::MainWindow(QWidget *parent) :
     qRegisterMetaType<SocketObj>("SocketObj");
     qRegisterMetaType<ShowMsg>("ShowMsg");
 
-    ui->lineEdit_serverIP->setText("127.0.0.14");
-    ui->lineEdit_serverPort->setText("8080");
+//    ui->lineEdit_serverIP->setText("127.0.0.14");
+//    ui->lineEdit_serverPort->setText("8080");
 
     m_pTcpip = new TcpipObj;
     m_pThread = new QThread;
@@ -50,7 +50,6 @@ MainWindow::MainWindow(QWidget *parent) :
 
     connect(this,&MainWindow::setCommFileName,m_pTcpip,&TcpipObj::setCommFileName);
     connect(this,&MainWindow::setTimingFileName,m_pTcpip,&TcpipObj::setTimingFileName);
-    connect(this,&MainWindow::setIniFileName,m_pTcpip,&TcpipObj::setIniFileName);
     connect(this,&MainWindow::createObj,m_pTcpip,&TcpipObj::createObj);
     connect(this,&MainWindow::setServerSendIpPort,m_pTcpip,&TcpipObj::setServerSendIpPort);
     connect(this,&MainWindow::manualSendMsg,m_pTcpip,&TcpipObj::manualSendMsg);
@@ -64,7 +63,6 @@ MainWindow::MainWindow(QWidget *parent) :
 
 MainWindow::~MainWindow()
 {
-    m_pTcpip->removeFile();
     delete ui;
 }
 
@@ -190,21 +188,13 @@ void MainWindow::on_pushButton_timer_clicked()
                                                          tr("Text Files (*.txt)"));
     if(!timerFileName.isEmpty())
     {
-        QString iniFileName = QFileDialog::getSaveFileName(this,NULL,"ForTiming.ini",tr("ini Files (*.ini)"));
-        if(!iniFileName.isEmpty())
-        {
-            log(tr("加载定时文件 %1成功!").arg(timerFileName),SHOW_NULL);
-            QSettings *configWrite = new QSettings(iniFileName, QSettings::IniFormat);
-            configWrite->clear();
-            delete configWrite;
-            emit setTimingFileName(timerFileName);
-            emit setIniFileName(iniFileName);
-            return;
-        }
+        log(tr("加载定时文件 %1成功!").arg(timerFileName),SHOW_NULL);
     }
-    emit setTimingFileName("");
-    emit setIniFileName("");
-    log(tr("已取消加载定时文件!"),SHOW_NULL);
+    else
+    {
+        log(tr("已取消加载定时文件!"),SHOW_NULL);
+    }
+    emit setTimingFileName(timerFileName);
 }
 
 void MainWindow::on_pushButton_creat_clicked()

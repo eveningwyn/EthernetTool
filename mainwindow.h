@@ -20,7 +20,6 @@ public:
 signals:
     void setCommFileName(const QString &fileName);
     void setTimingFileName(const QString &fileName);
-    void setIniFileName(const QString &fileName);
     void createObj(const QString &ip, int port, QString &prefix, QString &suffix, SocketObj index, int clientPort = 0);
     void setServerSendIpPort(const QString &strIp, const QString &strPort);
     void manualSendMsg(SocketObj index,const QString &msg);

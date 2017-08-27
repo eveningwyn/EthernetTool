@@ -1,5 +1,4 @@
 ﻿#include "tcpipobj.h"
-#include <QSettings>
 #include <QFile>
 #include <QTextStream>
 #include <QThread>
@@ -10,17 +9,14 @@ TcpipObj::TcpipObj(QObject *parent) : QObject(parent)
 }
 TcpipObj::~TcpipObj()
 {
-     removeFile();
 }
 void TcpipObj::init()
 {
     m_strCommFileName = "";
     m_strTimingFileName = "";
-    m_strIniFileName = "";
     m_socketObj = TCPIP_NULL;
     m_clientIp = "";
     m_clientPort = 0;
-//    m_sPattern = QString("(.*)%1(.*)%2(.*)").arg(",").arg(",");
 }
 void TcpipObj::setCommFileName(const QString &fileName)
 {
@@ -29,14 +25,6 @@ void TcpipObj::setCommFileName(const QString &fileName)
 void TcpipObj::setTimingFileName(const QString &fileName)
 {
     m_strTimingFileName = fileName;
-}
-void TcpipObj::setIniFileName(const QString &fileName)
-{
-    if(fileName.isEmpty())
-    {
-        QFile::remove(m_strIniFileName);
-    }
-    m_strIniFileName = fileName;
 }
 void TcpipObj::setRegExpPattern(const QString &split)
 {
@@ -126,10 +114,7 @@ void TcpipObj::createObj(const QString &ip, int port,
         }
     }
     emit createSuccess(index,connSuccess);
-    if(!m_strIniFileName.isEmpty() && connSuccess)
-    {
-        QFile::remove(m_strIniFileName);
-    }
+    clearMap();
 }
 void TcpipObj::server_ReadData(const QString &ip, const int &port, const QString &readMsg)
 {
@@ -240,9 +225,7 @@ void TcpipObj::check_timerMsg(QString &sendMsg)
                         timer_time = 1000;
                     }
                     QString strID = QString("%1").arg(this->startTimer(timer_time));
-                    QSettings *configWrite = new QSettings(m_strIniFileName, QSettings::IniFormat);
-                    configWrite->setValue(strID, msg_temp);
-                    delete configWrite;
+                    m_map[strID] = msg_temp;
                     break;
                 }
             }
@@ -253,33 +236,34 @@ void TcpipObj::check_timerMsg(QString &sendMsg)
 void TcpipObj::timerEvent(QTimerEvent *event)
 {
     QString strTimerID = QString("%1").arg(event->timerId());
-    QSettings *configRead = new QSettings(m_strIniFileName, QSettings::IniFormat);
-    QString strMsg = configRead->value(strTimerID).toString();
-    delete configRead;
-    if(!strMsg.isEmpty())
+    if(m_map.contains(strTimerID))
     {
-        if(TCPIP_SERVER==m_socketObj)
+        QString strMsg = m_map[strTimerID];
+        if(!strMsg.isEmpty())
         {
-            QString strSendMsg = QString("%1%2%3")
-                    .arg(server->getServerPrefix()).arg(strMsg).arg(server->getServerSuffix());
-            server->serverSendData((quint16&) m_clientPort,strSendMsg);
-            emit log(strSendMsg,SHOW_SENDER);
-            if(!m_strTimingFileName.isEmpty())
-            {
-                check_timerMsg(strSendMsg);
-            }
-        }
-        else
-        {
-            if(TCPIP_CLIENT==m_socketObj)
+            if(TCPIP_SERVER==m_socketObj)
             {
                 QString strSendMsg = QString("%1%2%3")
-                        .arg(client->getClientPrefix()).arg(strMsg).arg(client->getClientSuffix());
-                client->clientSendData(strSendMsg);
+                        .arg(server->getServerPrefix()).arg(strMsg).arg(server->getServerSuffix());
+                server->serverSendData((quint16&) m_clientPort,strSendMsg);
                 emit log(strSendMsg,SHOW_SENDER);
                 if(!m_strTimingFileName.isEmpty())
                 {
-                    check_timerMsg(strSendMsg);
+                    check_timerMsg(strMsg);
+                }
+            }
+            else
+            {
+                if(TCPIP_CLIENT==m_socketObj)
+                {
+                    QString strSendMsg = QString("%1%2%3")
+                            .arg(client->getClientPrefix()).arg(strMsg).arg(client->getClientSuffix());
+                    client->clientSendData(strSendMsg);
+                    emit log(strSendMsg,SHOW_SENDER);
+                    if(!m_strTimingFileName.isEmpty())
+                    {
+                        check_timerMsg(strMsg);
+                    }
                 }
             }
         }
@@ -310,7 +294,7 @@ void TcpipObj::manualSendMsg(SocketObj index, const QString &msg)
         emit log(strSendMsg,SHOW_SENDER);
         if(!m_strTimingFileName.isEmpty())
         {
-            check_timerMsg(strSendMsg);
+            check_timerMsg(QString(msg));
         }
     }
     else
@@ -323,7 +307,7 @@ void TcpipObj::manualSendMsg(SocketObj index, const QString &msg)
             emit log(strSendMsg,SHOW_SENDER);
             if(!m_strTimingFileName.isEmpty())
             {
-                check_timerMsg(strSendMsg);
+                check_timerMsg(QString(msg));
             }
         }
     }
@@ -344,13 +328,15 @@ void TcpipObj::deleteObj(SocketObj index)
         }
     }
     emit createSuccess(index,false);
-    removeFile();
+    clearMap();
     init();
 }
-void TcpipObj::removeFile()
+void TcpipObj::clearMap()
 {
-    if(!m_strIniFileName.isEmpty())
+    if(!m_map.isEmpty())
     {
-        QFile::remove(m_strIniFileName);
+        m_map.clear();
     }
+    m_strCommFileName = "";
+    m_strTimingFileName = "";
 }

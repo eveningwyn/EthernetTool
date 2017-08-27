@@ -6,6 +6,7 @@
 #include "tcpipclient.h"
 #include "language.h"
 #include <QEvent>
+#include <QMap>
 
 enum SocketObj
 {
@@ -31,11 +32,11 @@ private:
     TcpIpClient *client;
     QString m_strCommFileName;
     QString m_strTimingFileName;
-    QString m_strIniFileName;
     SocketObj m_socketObj;
     QString m_clientIp;
     int m_clientPort;
     QString m_sPattern;
+    QMap <QString, QString> m_map;
 
     void checkMsg(QString &msg, int &sleep_time);
     void check_timerMsg(QString &sendMsg);
@@ -52,13 +53,12 @@ public slots:
     void init();
     void setCommFileName(const QString &fileName);
     void setTimingFileName(const QString &fileName);
-    void setIniFileName(const QString &fileName);
     void createObj(const QString &ip, int port, QString &prefix, QString &suffix, SocketObj index,int clientPort);
     void setServerSendIpPort(const QString &ip, const QString &port);
     void manualSendMsg(SocketObj index,const QString &msg);
     void deleteObj(SocketObj index);
     void setRegExpPattern(const QString &split);
-    void removeFile();
+    void clearMap();
 
     void server_ReadData(const QString &ip, const int &port, const QString &readMsg);
 
